@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Automatic Image Slider</title>
+        <style>
+            :root {
+                /* ===== Colors ===== */
+                --slider-bg-color: #333;
+                --slider-progress-color: #fff;
+            }
+            html, body, ::before, ::after {
+                font-family: sans-serif;
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            .container {
+                width: 80%;
+                margin: 50px auto;
+            }
+            .img__wrapper {
+                width: 100%;
+                height: 500px;
+                background-size: cover;
+                background-position: center;
+            }
+            .slider__box {
+                position: relative;
+                top: 85%;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 32vw;
+                height: 8px;
+                background-color: linear-gradient(transparent, rgba(0,0,0,0.75));
+                overflow: hidden;
+                display: flex;
+                justify-content: space-between;
+            }
+            .slider__box > .slide {
+                height: 1em;
+                width: 30%;
+                border-radius: 2px;
+                cursor: pointer;
+                transition: all 300ms ease;
+            }
+            .slide-one, .slide-two, .slide-three {
+                background: var(--slider-bg-color);
+                position: relative;
+            }
+
+            .slide-one::after,
+            .slide-two::after,
+            .slide-three::after {
+                content: ' ';
+                display: block;
+                position: absolute;
+                height: 100%;
+                background-color: var(--slider-progress-color);
+                z-index: 10;
+            }
+            .slide-one::after {
+                width: var(--after-slide1-width, 0%);
+            }
+            .slide-two::after {
+                width: var(--after-slide2-width, 0%);
+            }
+            .slide-three::after {
+                width: var(--after-slide3-width, 0%);
+            }
+        </style>
+    </head>
+    <body onload="init()">
+        <div class="container">
+            <div class="img__wrapper">
+                <div class="slider__box">
+                    <div class="slide slide-one"></div>
+                    <div class="slide slide-two"></div>
+                    <div class="slide slide-three"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Javascript code below -->
+        <script>
+            // Define default slide and its width
+            let currentWidth = 0;
+            let which_slide = 1;
+            let request;
+
+            // Define requestAnimationFrame
+            let requestAnimationFrame = window.requestAnimationFrame || 
+                                        window.mozRequestAnimationFrame ||
+                                        window.webkitRequestAnimationFrame ||
+                                        window.msRequestAnimationFrame;
+
+            // First select all the elements
+            const imageContainer = document.querySelector('.img__wrapper');
+            const sliderBox = document.querySelector('.slider__box');
+            const sliderOne = document.querySelector('.slide-one');
+            const sliderTwo = document.querySelector('.slide-two');
+            const sliderThree = document.querySelector('.slide-three');
+
+            // Define images
+            const images = [
+                'https://picsum.photos/2000/1000', 
+                'https://picsum.photos/2000/1100', 
+                'https://picsum.photos/2000/1200'
+            ];
+
+            // Handle events
+            sliderOne.addEventListener('click', () => {
+                cancelAnimationFrame(request);
+                handleBackgroundImage(images[0]);
+                currentWidth = 0;
+                handleProgress();
+                which_slide = 1;
+                slideShow();
+            });
+
+            sliderTwo.addEventListener('click', () => {
+                cancelAnimationFrame(request);
+                handleBackgroundImage(images[1]);
+                currentWidth = 0;
+                handleProgress();
+                which_slide = 2;
+                slideShow();
+            });
+
+            sliderThree.addEventListener('click', () => {
+                cancelAnimationFrame(request);
+                handleBackgroundImage(images[2]);
+                currentWidth = 0;
+                handleProgress();
+                which_slide = 3;
+                slideShow();
+            });
+
+            // call init()
+            function init() {
+                imageContainer.style.backgroundImage = `url(${images[0]})`;
+                slideShow();
+            }
+
+            function handleProgress(){
+                switch(which_slide) {
+                    case 1:
+                        sliderOne.style.setProperty('--after-slide1-width', `${currentWidth}%`);
+                        break;
+                    case 2:
+                        sliderTwo.style.setProperty('--after-slide2-width', `${currentWidth}%`);
+                        break;
+                    case 3:
+                        sliderThree.style.setProperty('--after-slide3-width', `${currentWidth}%`);
+                        break;
+                }
+            }
+
+            // Show slide
+            function slideShow(){
+                currentWidth++;
+                if(currentWidth <= 100) {
+                    handleProgress();
+                }
+                if(currentWidth > 100) {
+                    currentWidth = 0;
+                    handleProgress();
+                    if(which_slide === 3){
+                        which_slide = 1;
+                    } else {
+                        which_slide++;
+                    }
+                    
+                    let image_url = images[which_slide-1];
+                    handleBackgroundImage(image_url);
+                }
+                request = requestAnimationFrame(slideShow); // doing Animation loop 
+            }
+
+            function handleBackgroundImage(url) {
+                imageContainer.style.backgroundImage = `url(${url})`;
+            }
+
+        </script>
+    </body>
+</html>
